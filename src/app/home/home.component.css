@@ -1,0 +1,14 @@
+.wrapper {
+    text-align: center;
+    
+  }
+  .button {
+   background-color: #2196F3; /* Green background */
+   border: 1px solid rgb(0, 119, 255); /* Green border */
+    color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+   float: left; /* Float the buttons side by side */
+   position: absolute;
+    top: 50%;
+  }
