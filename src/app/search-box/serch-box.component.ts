@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import axios from 'axios';
-import { forEach } from '@angular/router/src/utils/collection';
+import { HttpService } from '../http.service';
 
 @Component({
   selector: 'app-serch-box',
   templateUrl: './serch-box.component.html',
   styleUrls: ['./serch-box.component.css']
 })
-export class SerchBoxComponent implements OnInit {
 
+export class SerchBoxComponent implements OnInit {
   // toolsForAssociateList: any = [];
   searchedAssociateId: any = "";
   isErrorVisible: boolean = false;
@@ -22,37 +21,37 @@ export class SerchBoxComponent implements OnInit {
   baseApprovalRequestList: any[] = [];
   isApprovalRequestForAssociateIdFetched: boolean = false;
 
-  constructor() { }
+  constructor(private httpService: HttpService) { }
 
   ngOnInit() {
     this.getAllApprovalRequset();
   }
 
   getAllApprovalRequset() {
-
-    axios.get('http://localhost:8080/cerner/getallapprovalrequset').then((response) => {
-      console.log("getallapprovalrequset ===>>>" + JSON.stringify(response));
-      if (response.data && response.data.length > 0) {
-        this.baseApprovalRequestList = response.data;
-        this.baseApprovalRequestList.forEach(baseApprovalRequestObj => {
-          baseApprovalRequestObj.isChecked = false;
-          baseApprovalRequestObj.accessRequestStatus = false;
-        });
-      }
-    });
+    this.httpService.makeRequest('GET', 'getallapprovalrequset')
+      .subscribe(response => {
+        console.log('getAllApprovalRequset :',response);
+        if (response && response.length > 0) {
+          this.baseApprovalRequestList = response;
+          this.baseApprovalRequestList.forEach(baseApprovalRequestObj => {
+            baseApprovalRequestObj.isChecked = false;
+            baseApprovalRequestObj.accessRequestStatus = false;
+          });
+        }
+      })
   }
 
   fetchToolsforAssociate() {
-
     //fetching employee information based on EMPID
     this.isErrorVisible = false;
     this.isApprovalRequestForAssociateIdFetched = false;
-    axios.get('http://localhost:8080/cerner/getapprovalrequsetonassociateId?associateId=' + this.searchedAssociateId).then((response) => {
-
+    this.httpService.makeRequest('GET','getapprovalrequsetonassociateId?associateId='+this.searchedAssociateId)
+    .subscribe( response => {
+      console.log('fetchToolsforAssociate :',response);
       this.isApprovalRequestForAssociateIdFetched = true;
       console.log("response ===>>>" + JSON.stringify(response));
-      if (response.data) {
-        let approvedAssociateList = response.data;
+      if (response && response.length) {
+        let approvedAssociateList = response;
         //setting checked status for originally checked items
 
         this.baseApprovalRequestList.forEach(baseApprovalRequestObj => {
@@ -69,7 +68,7 @@ export class SerchBoxComponent implements OnInit {
       } else {
         this.isErrorVisible = true;
       }
-    });
+    })
   }
 
   onSendForApprovalClick() {
@@ -88,19 +87,19 @@ export class SerchBoxComponent implements OnInit {
       return;
     }
 
-    //fetching emailID of manager based on 
-    axios.get('http://localhost:8080/cerner/getmanageremail?associateId=' + this.searchedAssociateId).then((response) => {
-      console.log("getmanageremail ===>>>" + JSON.stringify(response));
-      if (response && response.data) {
+    this.httpService.makeRequest('GET','getmanageremail?associateId='+this.searchedAssociateId)
+    .subscribe( response => {
+      console.log("onSendForApprovalClick ===>>>" + JSON.stringify(response));
+      if (response) {
         this.isSearchDivVisible = false;
         this.isPreviewVisible = true;
-        this.managerEmailId = response.data.managerEmailId;
+        this.managerEmailId = response.managerEmailId;
       }
-    });
+    })
   }
 
   onSendClick() {
-    console.log("=====" + JSON.stringify(this.baseApprovalRequestList));
+    console.log("onClick" + JSON.stringify(this.baseApprovalRequestList));
     this.isPreviewVisible = false;
     let body: any = [];
     this.baseApprovalRequestList.forEach(element => {
@@ -115,13 +114,13 @@ export class SerchBoxComponent implements OnInit {
 
     console.log("----", body);
 
-    axios.post('http://localhost:8080/cerner/sendmailfromoutlook', body).then((response) => {
-      console.log("response ===>>>" + JSON.stringify(response));
-      if (response.data && response.data.statusCode == 200) {
+    this.httpService.makeRequest('POST','sendmailfromoutlook', body)
+    .subscribe( response => {
+      if (response && response.statusCode == 200) {
         this.isFinalSucessResponseArrived = true;
       } else {
         this.isFinalFailureResponseArrived = true;
       }
-    });
+    })
   }
 }
