@@ -14,8 +14,6 @@ export class HttpService {
     switch(requestType){
       case 'GET' : return this.getRequest(url)
       case 'POST': return this.postRequest(url,body)
-      case 'PUT':
-      case 'DELETE':
       default: return throwError('request type is not valid');
     }
   }
