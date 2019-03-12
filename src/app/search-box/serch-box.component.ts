@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { HttpService } from '../http.service';
 
 @Component({
   selector: 'app-serch-box',
   templateUrl: './serch-box.component.html',
-  styleUrls: ['./serch-box.component.css']
+  styleUrls: ['./serch-box.component.css'],
+  changeDetection : ChangeDetectionStrategy.Default
 })
 
 export class SerchBoxComponent implements OnInit {
@@ -21,9 +22,14 @@ export class SerchBoxComponent implements OnInit {
   baseApprovalRequestList: any[] = [];
   isApprovalRequestForAssociateIdFetched: boolean = false;
 
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService, private cd : ChangeDetectorRef) { }
 
   ngOnInit() {
+    this.getAllApprovalRequset();
+  }
+
+  refresh(){
+    this.cd.detectChanges();
     this.getAllApprovalRequset();
   }
 
@@ -42,6 +48,7 @@ export class SerchBoxComponent implements OnInit {
   }
 
   fetchToolsforAssociate() {
+    this.refresh();
     //fetching employee information based on EMPID
     this.isErrorVisible = false;
     this.isApprovalRequestForAssociateIdFetched = false;
