@@ -6,7 +6,7 @@ import { throwError, Observable } from "rxjs";
   providedIn: 'root'
 })
 export class HttpService {
-  private baseUrl = 'http://192.168.0.6:8080/cerner/';
+  private baseUrl = 'http://localhost:8080/cerner/';
   constructor(private http : HttpClient) {}
 
   public makeRequest(requestType : string,path:string,body?, headers?:string, responseType?:string) : Observable<any>{
